@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_finder/providers/recipe_provider.dart';
+import 'package:recipe_finder/screens/bookmarked_items_screen.dart';
 import 'package:recipe_finder/widgets/recipe_list.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -33,6 +34,17 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         elevation: 0.0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.bookmark),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => BookmarkedItemsScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

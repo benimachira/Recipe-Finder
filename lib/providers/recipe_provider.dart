@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:recipe_finder/models/recipe.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/recipe_details.dart';
 
@@ -14,7 +15,7 @@ class RecipeProvider with ChangeNotifier {
   List<Recipe> get recipes => _recipes;
 
   //this is the api key for spoonacular
-  final ApiKey ='4574b6dc101c45eeb5fb6aefdcebd5d9';
+  final ApiKey ='644b9573c498486b932c8a8edf700085';
 
   RecipeProvider() {
 
@@ -89,6 +90,42 @@ class RecipeProvider with ChangeNotifier {
     } else {
       throw Exception('Failed to fetch suggestions');
     }
+  }
+
+
+
+  List<RecipeDetails> _bookmarkedRecipes = [];
+
+  List<RecipeDetails> get bookmarkedRecipes => _bookmarkedRecipes;
+
+  void bookmarkRecipe(RecipeDetails recipeDetails) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? recipeIds = prefs.getStringList('bookmarkedRecipes');
+
+    if (recipeIds == null) {
+      recipeIds = [];
+    }
+
+    if (!recipeIds.contains(recipeDetails.id.toString())) {
+      recipeIds.add(recipeDetails.id.toString());
+      await prefs.setStringList('bookmarkedRecipes', recipeIds);
+      _bookmarkedRecipes.add(recipeDetails);
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchBookmarkedRecipes() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? recipeIds = prefs.getStringList('bookmarkedRecipes');
+
+    if (recipeIds != null) {
+      for (String recipeId in recipeIds) {
+        final recipeDetails = await fetchRecipeDetails(int.parse(recipeId));
+        _bookmarkedRecipes.add(recipeDetails!);
+      }
+    }
+
+    notifyListeners();
   }
 
 
